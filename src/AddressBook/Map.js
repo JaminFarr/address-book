@@ -8,7 +8,13 @@ import { shape, number } from "prop-types";
  *
  */
 const Map = ({ location: { latitude, longitude } }) => (
-  <PigeonMap center={[latitude, longitude]} defaultZoom={10} height={320}>
+  <PigeonMap
+    center={[latitude, longitude]}
+    defaultZoom={10}
+    height={320}
+    zoomSnap={false}
+    provider={osmTileProvider}
+  >
     <Marker anchor={[latitude, longitude]} />
   </PigeonMap>
 );
@@ -16,8 +22,13 @@ const Map = ({ location: { latitude, longitude } }) => (
 Map.propTypes = {
   location: shape({
     latitude: number.isRequired,
-    longitude: number.isRequired
-  }).isRequired
+    longitude: number.isRequired,
+  }).isRequired,
+};
+
+const osmTileProvider = (x, y, z) => {
+  const s = String.fromCharCode(97 + ((x + y + z) % 3));
+  return `https://${s}.tile.openstreetmap.org/${z}/${x}/${y}.png`;
 };
 
 export default Map;
