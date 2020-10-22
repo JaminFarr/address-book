@@ -107,7 +107,7 @@ export const AddressProvider = ({ children }) => {
     }
 
     // otherwise load and populate from `entries.json`
-    Axios.get("/data/entries.json").then(({ data }) =>
+    Axios.get("data/entries.json").then(({ data }) =>
       dispatch({
         type: ACTIONS.initStore,
         payload: data,

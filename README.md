@@ -2,7 +2,7 @@
 
 by Ben Farr
 
-http://benfarr-addressbook.surge.sh/
+https://jaminfarr.github.io/address-book/
 
 ## Parts
 
