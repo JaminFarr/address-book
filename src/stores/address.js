@@ -14,7 +14,7 @@ export const ACTIONS = {
   initStore: "initStore",
   addAddress: "addAddress",
   updateAddress: "updateAddress",
-  removeAddress: "removeAddress"
+  removeAddress: "removeAddress",
 };
 
 /**
@@ -35,7 +35,7 @@ const addressReducer = (state, action) => {
     // with the payload address
     // The email is provided separately in case the email has been updated
     case ACTIONS.updateAddress:
-      return state.map(address =>
+      return state.map((address) =>
         address.email === action.payload.email
           ? action.payload.address
           : address
@@ -43,7 +43,7 @@ const addressReducer = (state, action) => {
 
     // Copies the store array except for the address with the matching email
     case ACTIONS.removeAddress:
-      return state.filter(address => address.email !== action.payload);
+      return state.filter((address) => address.email !== action.payload);
 
     default:
       return state;
@@ -64,21 +64,21 @@ export const AddressProvider = ({ children }) => {
       add(address) {
         dispatch({
           type: ACTIONS.addAddress,
-          payload: address
+          payload: address,
         });
       },
       update(email, address) {
         dispatch({
           type: ACTIONS.updateAddress,
-          payload: { email, address }
+          payload: { email, address },
         });
       },
       remove(email) {
         dispatch({
           type: ACTIONS.removeAddress,
-          payload: email
+          payload: email,
         });
-      }
+      },
     }),
     [dispatch]
   );
@@ -93,9 +93,15 @@ export const AddressProvider = ({ children }) => {
   useEffect(() => {
     // Populate from localStorageAddresses if it exists
     if (localStorageAddresses !== "NO_LOCALSTORE") {
+      const duplicateEmails = new Set();
+
       dispatch({
         type: ACTIONS.initStore,
-        payload: localStorageAddresses
+        payload: localStorageAddresses.filter(({ email }) => {
+          const isDuplicate = duplicateEmails.has(email);
+          duplicateEmails.add(email);
+          return !isDuplicate;
+        }),
       });
       return;
     }
@@ -104,7 +110,7 @@ export const AddressProvider = ({ children }) => {
     Axios.get("/data/entries.json").then(({ data }) =>
       dispatch({
         type: ACTIONS.initStore,
-        payload: data
+        payload: data,
       })
     );
   }, []);
@@ -117,7 +123,7 @@ export const AddressProvider = ({ children }) => {
   // The actual store value
   const storeValue = {
     addresses,
-    actions
+    actions,
   };
 
   return (

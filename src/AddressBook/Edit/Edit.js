@@ -1,28 +1,43 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
+import Badge from "react-bootstrap/Badge";
 import { useFormState } from "../hooks/form-state";
 import PostcodeLookup from "./PostcodeLookup";
 import { AddressEdit } from "./AddressEdit";
 import { getEmptyAddress } from "../utils/getEmptyAddress";
+import { AddressContext } from "../../stores/address";
+
+const useIsDuplicateEmail = (email, originalEmail) => {
+  const { addresses } = useContext(AddressContext);
+  return (
+    email !== originalEmail &&
+    Boolean(addresses.find((address) => address.email === email))
+  );
+};
 
 const Edit = ({ address = getEmptyAddress(), storeAddress, onClose }) => {
   const {
     formState: editAddress,
     setFormState: setEditAddress,
     setField,
-    bindField
+    bindField,
   } = useFormState(address);
 
   const [show, setShow] = useState(true);
+  const isDuplicateEmail = useIsDuplicateEmail(
+    editAddress.email,
+    address.email
+  );
 
   const hasPostcode = Boolean(editAddress.postcode);
 
   // Poor man's validation
-  const canSave = hasPostcode && editAddress.name && editAddress.email;
+  const canSave =
+    hasPostcode && editAddress.name && editAddress.email && !isDuplicateEmail;
 
   return (
     <Modal
@@ -62,6 +77,9 @@ const Edit = ({ address = getEmptyAddress(), storeAddress, onClose }) => {
                   placeholder="Enter email"
                   {...bindField("email")}
                 />
+                {isDuplicateEmail ? (
+                  <Badge variant="danger">Duplicate email</Badge>
+                ) : null}
               </Form.Group>
 
               <Form.Group controlId="addressTel">
@@ -82,7 +100,7 @@ const Edit = ({ address = getEmptyAddress(), storeAddress, onClose }) => {
                 />
               ) : (
                 <PostcodeLookup
-                  setPostcode={postcodeDetails =>
+                  setPostcode={(postcodeDetails) =>
                     setEditAddress({ ...editAddress, ...postcodeDetails })
                   }
                 />
